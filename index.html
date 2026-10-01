@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para ti 💙</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--c:#00e5ff;box-sizing:border-box}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:'Orbitron',system-ui,sans-serif;color:var(--c)}
+canvas{display:block}
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle,#02161c 0%,#000 70%);z-index:10;transition:opacity 1.2s;padding:20px}
+#intro p{letter-spacing:.25em;font-size:clamp(12px,2.6vw,18px);line-height:2;margin:0 0 28px;text-shadow:0 0 12px var(--c)}
+button{font-family:inherit;cursor:pointer}
+#go{background:transparent;color:var(--c);border:1px solid var(--c);border-radius:40px;padding:14px 34px;letter-spacing:.35em;font-weight:700;font-size:13px;box-shadow:0 0 18px rgba(0,229,255,.4),inset 0 0 12px rgba(0,229,255,.2)}
+#go:hover{background:rgba(0,229,255,.12)}
+#msg{position:fixed;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:1px solid var(--c);background:rgba(0,20,28,.8);color:var(--c);display:none;align-items:center;justify-content:center;z-index:5;box-shadow:0 0 18px rgba(0,229,255,.5);animation:pulse 2s infinite}
+#msg svg{width:28px;height:28px}
+@keyframes pulse{50%{box-shadow:0 0 30px rgba(0,229,255,.9)}}
+#hint{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));width:100%;text-align:center;font-size:11px;letter-spacing:.2em;opacity:.6;pointer-events:none;display:none;z-index:4}
+#letter{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+#letter.on{display:flex}
+.paper{max-width:480px;width:100%;max-height:88%;overflow:auto;background:linear-gradient(160deg,#06222b,#020b10);border:1px solid rgba(0,229,255,.5);border-radius:18px;padding:28px 26px;box-shadow:0 0 40px rgba(0,229,255,.3);color:#d8f9ff;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:1.65;animation:in .6s}
+.paper h2{font-family:'Orbitron',sans-serif;color:var(--c);font-size:20px;margin:0 0 14px;letter-spacing:.12em}
+.paper p{margin:0 0 14px}
+.paper .fin{color:var(--c);font-style:italic}
+#close{float:right;background:none;border:0;color:var(--c);font-size:24px;line-height:1}
+@keyframes in{from{opacity:0;transform:translateY(20px) scale(.97)}}
+#aud{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:1px solid var(--c);background:rgba(0,20,28,.8);color:var(--c);display:none;align-items:center;justify-content:center;z-index:5;box-shadow:0 0 18px rgba(0,229,255,.5)}
+#aud svg{width:26px;height:26px}
+.w{opacity:0;transition:opacity .6s}
+.w.on{opacity:1}
+</style>
+</head>
+<body>
+<div id="intro">
+  <p>A TI TE GUSTAN LAS MOTOS<br>A MI ME GUSTAS TU</p>
+  <button id="go">DESCUBRIR</button>
+</div>
+<div id="hint">ARRASTRA · PELLIZCA PARA ACERCAR</div>
+<button id="msg" aria-label="Abrir mensaje">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 20.5l1.5-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4"/></svg>
+</button>
+<button id="aud" aria-label="Música"></button>
+<audio id="song" loop preload="auto" src="https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/AUDIO/enrique%20iglesias%20si%20pudiera.mp3"></audio>
+<div id="letter">
+  <div class="paper">
+    <button id="close" aria-label="Cerrar">×</button>
+    <h2>Para ti... 💙</h2>
+    <p>Me gustas porque a pesar de todo lo que has pasado,<br>sigues teniendo un corazón noble.</p>
+    <p>Me gustas por tu forma de ser, por cómo te esfuerzas<br>aunque nadie te lo reconozca.</p>
+    <p>Quiero hacer feliz a tu niño interior.<br>A ese niño que a veces nadie cuidó,<br>que tuvo que madurar rápido,<br>que aprendió a no llorar para no molestar.</p>
+    <p>Quiero que conmigo puedas ser tú.</p>
+    <p>Está demás decirte que te quiero porque sabes que sí,<br>y espero que te guste este pequeño detalle.</p>
+    <p class="fin">Ten un bonito día, te quiero niño.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
+<script>
+const R=(a,b)=>a+Math.random()*(b-a);
+const dotTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);
+g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.2,'rgba(255,255,255,.9)');g.addColorStop(.5,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');
+x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})();
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x000000,0.004);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1500);
+camera.position.set(0,2,16);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.setClearColor(0x000000,0);
+renderer.domElement.style.cssText='position:fixed;inset:0;z-index:1';
+const cssR=new THREE.CSS3DRenderer();cssR.setSize(innerWidth,innerHeight);
+cssR.domElement.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden';
+document.body.prepend(renderer.domElement);document.body.prepend(cssR.domElement);
+scene.add(new THREE.AmbientLight(0xffffff,.85));
+const dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(5,10,7);scene.add(dl);
+const pl=new THREE.PointLight(0x33e6ff,1.3,40);pl.position.set(0,1,5);scene.add(pl);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=.06;
+controls.minDistance=5;controls.maxDistance=120;
+controls.autoRotate=true;controls.autoRotateSpeed=.5;
+controls.enabled=false;
+
+// Estrellas
+(function(){
+  const n=3500,p=new Float32Array(n*3),c=new Float32Array(n*3),cols=[[1,1,1],[.5,.9,1],[1,.85,.5],[.8,.5,1]];
+  for(let i=0;i<n;i++){
+    const r=R(30,500),t=R(0,6.283),f=Math.acos(R(-1,1));
+    p[i*3]=r*Math.sin(f)*Math.cos(t);p[i*3+1]=r*Math.cos(f);p[i*3+2]=r*Math.sin(f)*Math.sin(t);
+    const k=cols[Math.floor(R(0,4))];c.set(k,i*3);
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:4,map:dotTex,vertexColors:true,sizeAttenuation:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+})();
+
+// Disco de polvo bajo el centro
+const disc=new THREE.Mesh(new THREE.CircleGeometry(16,64),new THREE.MeshBasicMaterial({color:0x06414a,transparent:true,opacity:.45}));
+disc.rotation.x=-Math.PI/2;disc.position.y=-2.8;scene.add(disc);
+(function(){
+  const n=900,p=new Float32Array(n*3);
+  for(let i=0;i<n;i++){const r=16*Math.sqrt(Math.random()),t=R(0,6.283);p[i*3]=r*Math.cos(t);p[i*3+1]=-2.75+R(-.1,.4);p[i*3+2]=r*Math.sin(t)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:.45,map:dotTex,color:0x7ff3ff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending})));
+})();
+
+// Helpers de canvas
+function cv(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+function tex(c){const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+function sprite(c,sx,sy){
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex(c),transparent:true,depthWrite:false}));
+  s.scale.set(sx,sy,1);return s;
+}
+function wheel(x,c,cx,cy,r,col){
+  x.lineWidth=r*.28;x.strokeStyle='#0b0b12';x.beginPath();x.arc(cx,cy,r,0,7);x.stroke();
+  x.lineWidth=3;x.strokeStyle=col;x.beginPath();x.arc(cx,cy,r*.72,0,7);x.stroke();
+  x.fillStyle='#888';x.beginPath();x.arc(cx,cy,r*.15,0,7);x.fill();
+}
+function moto(col){
+  const c=cv(256,160),x=c.getContext('2d');
+  x.shadowColor=col;x.shadowBlur=14;
+  wheel(x,c,58,112,34,col);wheel(x,c,202,112,34,col);
+  x.shadowBlur=0;
+  x.strokeStyle='#222';x.lineWidth=7;x.beginPath();x.moveTo(58,112);x.lineTo(100,80);x.moveTo(202,112);x.lineTo(176,62);x.stroke();
+  x.fillStyle=col; // carenado
+  x.beginPath();x.moveTo(170,50);x.lineTo(214,78);x.lineTo(196,100);x.lineTo(150,96);x.lineTo(130,70);x.closePath();x.fill();
+  x.fillStyle='#fff8';x.beginPath();x.moveTo(176,24);x.lineTo(196,52);x.lineTo(172,48);x.closePath();x.fill();
+  x.fillStyle=col; // tanque + cola
+  x.beginPath();x.moveTo(100,56);x.lineTo(150,50);x.lineTo(156,82);x.lineTo(104,84);x.closePath();x.fill();
+  x.beginPath();x.moveTo(40,62);x.lineTo(100,62);x.lineTo(96,84);x.lineTo(56,80);x.closePath();x.fill();
+  x.fillStyle='#111';x.fillRect(84,46,44,10);
+  x.fillStyle='#ffe';x.shadowColor='#ffe';x.shadowBlur=12;x.beginPath();x.arc(208,74,6,0,7);x.fill();
+  return c;
+}
+function label(txt,col){
+  const c=cv(256,64),x=c.getContext('2d');
+  x.font='700 34px Orbitron, sans-serif';x.textAlign='center';x.textBaseline='middle';
+  x.shadowColor=col;x.shadowBlur=14;x.fillStyle=col;x.fillText(txt,128,32);
+  return c;
+}
+
+// Motos en la galaxia: fotos como <img> (no requieren CORS)
+const BASE='https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/MOTOS/';
+const FILES=['ducati','kawa','r6','susuki','yamaha'];
+const motoCols=['#e11d2e','#1e6dff','#20c341','#0a7fb5','#7b3cff','#ff7a00','#19d3da'];
+const floaters=[],bills=[];
+for(let i=0;i<40;i++){
+  const im=document.createElement('img');
+  im.style.cssText='height:200px;width:auto;display:block;filter:drop-shadow(0 0 14px rgba(0,229,255,.35))';
+  im.onerror=()=>{im.onerror=null;im.src=moto(motoCols[i%7]).toDataURL()};
+  im.src=BASE+FILES[i%FILES.length]+'.png';
+  const o=new THREE.CSS3DObject(im),k=R(.022,.04);
+  o.scale.set(k*(Math.random()<.5?-1:1),k,k);
+  const r=R(14,75),t=R(0,6.283),h=R(-28,28);
+  o.position.set(r*Math.cos(t),h,r*Math.sin(t));
+  scene.add(o);bills.push(o);floaters.push({s:o,y:h,ph:R(0,6.28),sp:R(.4,1)});
+}
+// Palabras
+const words=['Esperanza','Destino','Familia','Fuerte','Mi niño','Tiempo','Confia','Te quiero','Fantasía','Dino','Mi Groot','Universo','Bebé','Color Nutella','Sueños','Te extraño','Mi noche','Te quiero','Éxitos','Eternidad','Pasión','Te quiero','Deseo','Mi paz'];
+const wcol=['#8be9ff','#c9a7ff','#ffffff','#ffd98b','#7dffb0'];
+for(let i=0;i<70;i++){
+  const w=words[i%words.length],s=sprite(label(w,wcol[i%5]),1,.25),k=R(3,7);
+  s.scale.set(k,k*.25,1);
+  const r=R(10,80),t=R(0,6.283),h=R(-30,30);
+  s.position.set(r*Math.cos(t),h,r*Math.sin(t));
+  scene.add(s);floaters.push({s,y:s.position.y,ph:R(0,6.28),sp:R(.3,.8)});
+}
+// Destellos de colores
+for(let i=0;i<24;i++){
+  const c=cv(64,64),x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);
+  const col=['0,229,255','160,80,255','255,200,80','80,255,160'][i%4];
+  g.addColorStop(0,`rgba(${col},.8)`);g.addColorStop(1,`rgba(${col},0)`);x.fillStyle=g;x.fillRect(0,0,64,64);
+  const s=sprite(c,1,1),k=R(3,10);s.scale.set(k,k,1);
+  s.position.set(R(-60,60),R(-30,30),R(-60,60));scene.add(s);
+}
+
+// Spiderman 3D en moto con ramo
+const V=(x,y,z)=>new THREE.Vector3(x,y,z),UP=V(0,1,0);
+const M=(c,e)=>new THREE.MeshLambertMaterial({color:c,emissive:e||0x000000});
+const red=M(0xd3212e,0x300004),blue=M(0x1f46c9,0x050c30),dark=M(0x16161d),silver=M(0xb4bcc4),mred=M(0xe0182d,0x350005),mblue=M(0x1d4fd8,0x04103a);
+function ball(p,r,m,sc){const o=new THREE.Mesh(new THREE.SphereGeometry(r,20,14),m);o.position.copy(p);if(sc)o.scale.set(sc[0],sc[1],sc[2]);return o}
+function cyl(a,b,r,m){const d=b.clone().sub(a),o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),12),m);o.position.copy(a).add(b).multiplyScalar(.5);o.quaternion.setFromUnitVectors(UP,d.normalize());return o}
+function limb(g,pts,r,m){for(let i=0;i<pts.length-1;i++)g.add(cyl(pts[i],pts[i+1],r,m));pts.forEach(p=>g.add(ball(p,r,m)))}
+const hero=new THREE.Group(),wheels=[];
+function wheel(x,y){
+  const w=new THREE.Group();w.position.set(x,y,0);
+  w.add(new THREE.Mesh(new THREE.TorusGeometry(.9,.22,14,36),dark));
+  w.add(new THREE.Mesh(new THREE.TorusGeometry(.68,.04,8,36),new THREE.MeshBasicMaterial({color:0x66f0ff})));
+  for(let i=0;i<5;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(1.4,.07,.07),silver);sp.rotation.z=i*Math.PI/5;w.add(sp)}
+  const d=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.05,24),silver);d.rotation.x=Math.PI/2;d.position.z=.12;w.add(d);
+  hero.add(w);wheels.push(w);
+}
+wheel(-1.9,1.12);wheel(2.0,1.12);
+// moto
+hero.add(ball(V(.5,2.3,0),1,mred,[1.15,.5,.55]));        // tanque
+hero.add(ball(V(2.1,2.0,0),1,mred,[.9,.55,.55]));        // nariz
+hero.add(ball(V(.8,1.5,0),1,mblue,[1.7,.5,.5]));         // carenado inferior
+hero.add(ball(V(-1.3,2.35,0),1,mred,[1.2,.38,.4]));      // cola
+hero.add(ball(V(-.6,2.1,0),1,dark,[1,.14,.4]));          // asiento
+const eng=new THREE.Mesh(new THREE.BoxGeometry(1.3,.7,.6),dark);eng.position.set(.1,1.15,0);hero.add(eng);
+[-.3,.3].forEach(z=>{hero.add(cyl(V(2,1.12,z),V(1.5,2.8,z),.06,silver));hero.add(cyl(V(-1.9,1.12,z),V(-.2,1.2,z),.07,dark))});
+hero.add(cyl(V(1.45,2.85,-.65),V(1.45,2.85,.65),.05,dark));
+hero.add(cyl(V(-2.4,.85,.5),V(-.7,1.0,.5),.12,silver));
+const ws=ball(V(1.7,2.75,0),1,new THREE.MeshBasicMaterial({color:0x99e8ff,transparent:true,opacity:.45}),[.35,.4,.3]);ws.rotation.z=-.5;hero.add(ws);
+hero.add(ball(V(2.95,2.05,0),.17,new THREE.MeshBasicMaterial({color:0xffffff}),[.6,1,1]));
+hero.add(ball(V(-2.5,2.4,0),.12,new THREE.MeshBasicMaterial({color:0xff3040})));
+// Spiderman
+const hip=V(-.3,2.5,0),chest=V(.8,3.3,0),H=V(1.25,4.0,0);
+hero.add(cyl(hip,chest,.4,red));hero.add(ball(chest,.5,red,[1,1,.9]));hero.add(ball(hip,.42,blue));
+hero.add(ball(V(.45,3.15,0),.3,M(0x0d0d12),[.2,1,.8]));
+[-1,1].forEach(sg=>{
+  limb(hero,[V(-.3,2.45,sg*.25),V(.95,2.3,sg*.45),V(.75,1.1,sg*.45)],.2,blue);
+  hero.add(ball(V(.95,.95,sg*.45),.22,red,[1.5,.7,.8]));
+});
+limb(hero,[V(.9,3.45,-.35),V(1.35,3.2,-.55),V(1.45,2.85,-.62)],.16,red);hero.add(ball(V(1.45,2.85,-.62),.17,red));
+const hand=V(2.2,4.05,.6);
+limb(hero,[V(.9,3.45,.35),V(1.6,3.65,.6),hand],.16,red);hero.add(ball(hand,.18,red));
+// cabeza con telaraña
+const hc=document.createElement('canvas');hc.width=512;hc.height=256;const hx=hc.getContext('2d');
+hx.fillStyle='#d3212e';hx.fillRect(0,0,512,256);hx.strokeStyle='rgba(50,0,8,.85)';hx.lineWidth=2;
+for(let i=0;i<24;i++){hx.beginPath();hx.moveTo(i*21.3,0);hx.lineTo(i*21.3,256);hx.stroke()}
+for(let j=1;j<9;j++){hx.beginPath();for(let i=0;i<=512;i+=8){const y=j*28+Math.sin(i/21.3*Math.PI)*-5;i?hx.lineTo(i,y):hx.moveTo(i,y)}hx.stroke()}
+const head=new THREE.Mesh(new THREE.SphereGeometry(.46,28,20),new THREE.MeshLambertMaterial({map:new THREE.CanvasTexture(hc),emissive:0x300004}));
+head.position.copy(H);head.rotation.y=-Math.PI/2;hero.add(head);
+[-1,1].forEach(sg=>{
+  const rim=ball(H.clone().add(V(.33,.1,sg*.2)),1,M(0x050508),[.12,.22,.28]);rim.rotation.x=sg*.5;hero.add(rim);
+  const e=ball(H.clone().add(V(.38,.1,sg*.2)),1,new THREE.MeshBasicMaterial({color:0xffffff}),[.08,.17,.23]);e.rotation.x=sg*.5;hero.add(e);
+});
+// ramo
+const bqStart=hero.children.length;
+const D=V(.3,1,.12).normalize(),cone=new THREE.Mesh(new THREE.ConeGeometry(.6,1.4,24,1,true),new THREE.MeshLambertMaterial({color:0x7fe3ff,emissive:0x0a4a66,side:THREE.DoubleSide,transparent:true,opacity:.9}));
+cone.position.copy(hand).add(D.clone().multiplyScalar(.7));cone.quaternion.setFromUnitVectors(UP,D.clone().negate());hero.add(cone);
+const T=hand.clone().add(D.clone().multiplyScalar(1.4)),leafM=M(0x22a844,0x052a10);
+function flower(pos){
+  const g=new THREE.Group(),pm=M(0x2f7dff,0x0a2a80);
+  for(let i=0;i<8;i++){const t=i/8*6.283,pt=ball(V(Math.cos(t)*.17,0,Math.sin(t)*.17),.12,pm,[1.3,.5,.8]);pt.rotation.y=-t;g.add(pt)}
+  g.add(ball(V(0,.04,0),.09,M(0xffd23a,0x553300)));g.position.copy(pos);return g;
+}
+[[-.28,.05,-.2],[.28,.12,-.15],[0,.2,.22],[-.22,.14,.18],[.25,0,.25],[0,.3,0],[.05,.08,-.3]].forEach(o=>hero.add(flower(T.clone().add(V(o[0],o[1],o[2])))));
+[[-.45,-.05,0,.4],[.45,-.05,.1,-.4],[0,-.05,.45,.2],[0,-.05,-.45,-.2]].forEach(o=>{const lf=ball(T.clone().add(V(o[0],o[1],o[2])),.2,leafM,[1.6,.3,.8]);lf.rotation.z=o[3];hero.add(lf)});
+const bq=new THREE.Group();bq.position.copy(hand);
+hero.children.slice(bqStart).forEach(o=>{o.position.sub(hand);bq.add(o)});
+bq.scale.setScalar(1.9);hero.add(bq);
+hero.position.set(-.2,-2.75,0);hero.scale.setScalar(1.15);scene.add(hero);
+const halo=(()=>{const c=cv(128,128),x=c.getContext('2d'),g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(80,220,255,.5)');g.addColorStop(1,'rgba(80,220,255,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return sprite(c,22,22)})();
+halo.position.z=-.5;scene.add(halo);
+
+// Brillos flotando alrededor del ramo
+const sp=[];
+for(let i=0;i<30;i++){
+  const c=cv(32,32),x=c.getContext('2d'),g=x.createRadialGradient(16,16,0,16,16,16);
+  g.addColorStop(0,'rgba(170,240,255,1)');g.addColorStop(1,'rgba(170,240,255,0)');x.fillStyle=g;x.fillRect(0,0,32,32);
+  const s=sprite(c,.5,.5);s.position.set(R(1,4),R(1,5),R(-1,1));scene.add(s);sp.push({s,v:R(.3,1),o:R(0,6)});
+}
+
+// Bucle
+const clock=new THREE.Clock();
+function loop(){
+  const t=clock.getElapsedTime();
+  floaters.forEach(f=>{f.s.position.y=f.y+Math.sin(t*f.sp+f.ph)*1.2});
+  hero.position.y=-2.75+Math.sin(t*1.2)*.08;wheels.forEach(w=>w.rotation.z=-t*3);bills.forEach(o=>o.quaternion.copy(camera.quaternion));
+  sp.forEach(o=>{o.s.position.y=1+((t*o.v+o.o)%4.5);o.s.material.opacity=1-((t*o.v+o.o)%4.5)/4.5});
+  controls.update();
+  renderer.render(scene,camera);cssR.render(scene,camera);
+  requestAnimationFrame(loop);
+}
+loop();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);cssR.setSize(innerWidth,innerHeight)});
+
+// UI
+const $=id=>document.getElementById(id);
+$('go').onclick=()=>{
+  $('intro').style.opacity=0;setTimeout(()=>$('intro').style.display='none',1200);
+  $('msg').style.display='flex';$('hint').style.display='block';
+  setTimeout(()=>$('hint').style.opacity=0,5000);
+  controls.enabled=true;
+  camera.position.set(0,40,120);
+  const start=performance.now();
+  (function zoom(){const k=Math.min((performance.now()-start)/2500,1),e=1-Math.pow(1-k,3);
+    camera.position.set(0,40-38*e,120-104*e);if(k<1)requestAnimationFrame(zoom)})();
+};
+const song=$('song'),aud=$('aud');
+const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
+aud.innerHTML=ICON_PLAY;
+song.addEventListener('play',()=>aud.innerHTML=ICON_PAUSE);
+song.addEventListener('pause',()=>aud.innerHTML=ICON_PLAY);
+aud.onclick=()=>song.paused?song.play().catch(()=>{}):song.pause();
+$('go').addEventListener('click',()=>{aud.style.display='flex';song.play().catch(()=>{});});
+document.querySelectorAll('.paper p').forEach(p=>{
+  p.innerHTML=p.innerHTML.split(/<br\s*\/?>/i).map(l=>l.trim().split(/\s+/).map(w=>'<span class="w">'+w+'</span>').join(' ')).join('<br>');
+});
+let typer;
+function typeLetter(){
+  clearTimeout(typer);
+  const ws=[...document.querySelectorAll('.paper .w')];ws.forEach(w=>w.classList.remove('on'));
+  let i=0;
+  (function next(){
+    if(i>=ws.length||!$('letter').classList.contains('on'))return;
+    const w=ws[i++];w.classList.add('on');
+    const end=/[.,]$/.test(w.textContent);
+    typer=setTimeout(next,end?650:230);
+  })();
+}
+$('msg').onclick=()=>{$('letter').classList.add('on');typeLetter();};
+document.querySelector('.paper').addEventListener('click',()=>{clearTimeout(typer);document.querySelectorAll('.paper .w').forEach(w=>w.classList.add('on'))});
+$('close').onclick=()=>$('letter').classList.remove('on');
+$('letter').onclick=e=>{if(e.target===$('letter'))$('letter').classList.remove('on')};
+</script>
+</body>
+</html>
