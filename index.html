@@ -64,6 +64,14 @@ html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
 <script>
+const dbgLines=[];
+function dbg(m){
+  let d=document.getElementById('dbg');
+  if(!d){d=document.createElement('div');d.id='dbg';d.style.cssText='position:fixed;left:6px;top:6px;right:6px;z-index:99;font:11px monospace;color:#ff8a8a;background:rgba(0,0,0,.6);padding:4px 6px;pointer-events:none;white-space:pre-wrap';document.body.appendChild(d)}
+  dbgLines.push(m);d.textContent=dbgLines.slice(-3).join('\n');
+}
+window.addEventListener('error',e=>dbg('Error: '+e.message+' (línea '+e.lineno+')'));
+window.addEventListener('unhandledrejection',e=>dbg('Promesa: '+(e.reason&&e.reason.message||e.reason)));
 const R=(a,b)=>a+Math.random()*(b-a);
 const dotTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);
 g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.2,'rgba(255,255,255,.9)');g.addColorStop(.5,'rgba(255,255,255,.25)');g.addColorStop(1,'rgba(255,255,255,0)');
@@ -188,7 +196,8 @@ FILES.forEach((n,j)=>{
   })(0);
 });
 // Palabras
-const words=['Esperanza','Destino','Familia','Fuerte','Mi niño','Tiempo','Confia','Te quiero','Fantasía','Dino','Mi Groot','Universo','Bebé','Color Nutella','Sueños','Te extraño','Mi noche','Te quiero','Éxitos','Eternidad','Pasión','Te quiero','Deseo','Mi paz'];
+const words=['Esperanza','Destino','Magia','Fuerza','Océano','Velocidad','Confianza','Amanecer','Fantasía','Precisión','Turbo','Universo','Tesoro','Libertad','Sueños','Mi flor','Mi noche','Derrape','Suerte','Eternidad','Pasión','Fiesta','Deseo','Mi paz'];
+const wcol=['#8be9ff','#c9a7ff','#ffffff','#ffd98b','#7dffb0'];
 for(let i=0;i<70;i++){
   const w=words[i%words.length],s=sprite(label(w,wcol[i%5]),1,.25),k=R(3,7);
   s.scale.set(k,k*.25,1);
@@ -287,6 +296,8 @@ for(let i=0;i<30;i++){
 // Bucle
 const clock=new THREE.Clock();
 function loop(){
+  requestAnimationFrame(loop);
+  try{
   const t=clock.getElapsedTime();
   floaters.forEach(f=>{f.s.position.y=f.y+Math.sin(t*f.sp+f.ph)*1.2});
   hero.position.y=-2.75+Math.sin(t*1.2)*.08;wheels.forEach(w=>w.rotation.z=-t*3);
@@ -294,7 +305,7 @@ function loop(){
   controls.update();
   bills.forEach(b=>{b.o.position.copy(b.s.position);b.o.quaternion.copy(camera.quaternion)});
   renderer.render(scene,camera);if(cssR)cssR.render(scene,camera);
-  requestAnimationFrame(loop);
+  }catch(err){dbg('Render: '+err.message)}
 }
 loop();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);if(cssR)cssR.setSize(innerWidth,innerHeight);const pt=camera.aspect<1.2;if(controls.enabled&&pt!==lastP){lastP=pt;camera.position.setLength(fitDist())}});
@@ -303,7 +314,7 @@ addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updat
 const $=id=>document.getElementById(id);
 function fitDist(){return Math.max(14,4.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect))}
 let lastP=innerWidth/innerHeight<1.2;
-$('go').onclick=()=>{
+$('go').onclick=()=>{try{
   $('intro').style.opacity=0;setTimeout(()=>$('intro').style.display='none',1200);
   $('msg').style.display='flex';$('hint').style.display='block';
   setTimeout(()=>$('hint').style.opacity=0,5000);
@@ -312,7 +323,7 @@ $('go').onclick=()=>{
   const start=performance.now(),D=fitDist();
   (function zoom(){const k=Math.min((performance.now()-start)/2500,1),e=1-Math.pow(1-k,3);
     camera.position.set(0,40-38*e,120-(120-D)*e);if(k<1)requestAnimationFrame(zoom)})();
-};
+}catch(err){dbg('Descubrir: '+err.message)}};
 const song=$('song'),aud=$('aud');
 const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
@@ -322,9 +333,9 @@ song.addEventListener('pause',()=>aud.innerHTML=ICON_PLAY);
 let userPaused=false;
 function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',6000)}
 function startMusic(){
-  song.muted=false;song.volume=1;
+  try{song.muted=false;song.volume=1;
   const pr=song.play();
-  if(pr&&pr.catch)pr.catch(()=>{});
+  if(pr&&pr.catch)pr.catch(()=>{});}catch(err){dbg('Música: '+err.message)}
 }
 aud.onclick=()=>{if(song.paused){userPaused=false;startMusic()}else{userPaused=true;song.pause()}};
 const srcs=song.querySelectorAll('source');
