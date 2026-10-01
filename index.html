@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Para ti 💙</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -31,7 +31,6 @@ button{font-family:inherit;cursor:pointer}
 #aud svg{width:26px;height:26px}
 .w{opacity:0;transition:opacity .6s}
 .w.on{opacity:1}
-html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 </style>
 </head>
 <body>
@@ -44,7 +43,7 @@ html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 20.5l1.5-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4"/></svg>
 </button>
 <button id="aud" aria-label="Música"></button>
-<audio id="song" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"><source src="https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/AUDIO/enrique%20iglesias%20si%20pudiera.mp3" type="audio/mpeg"></audio>
+<audio id="song" loop preload="auto" src="https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/AUDIO/enrique%20iglesias%20si%20pudiera.mp3"></audio>
 <div id="letter">
   <div class="paper">
     <button id="close" aria-label="Cerrar">×</button>
@@ -54,12 +53,13 @@ html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
     <p>Quiero hacer feliz a tu niño interior.<br>A ese niño que a veces nadie cuidó,<br>que tuvo que madurar rápido,<br>que aprendió a no llorar para no molestar.</p>
     <p>Quiero que conmigo puedas ser tú.</p>
     <p>Está demás decirte que te quiero porque sabes que sí,<br>y espero que te guste este pequeño detalle.</p>
-    <p class="fin">Ten un bonito día, te quiero niñato.</p>
+    <p class="fin">Ten un bonito día, te quiero niño.</p>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS3DRenderer.js"></script>
 <script>
 const R=(a,b)=>a+Math.random()*(b-a);
 const dotTex=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),g=x.createRadialGradient(32,32,0,32,32,32);
@@ -74,7 +74,9 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
 renderer.setClearColor(0x000000,0);
 renderer.domElement.style.cssText='position:fixed;inset:0;z-index:1';
-document.body.prepend(renderer.domElement);
+const cssR=new THREE.CSS3DRenderer();cssR.setSize(innerWidth,innerHeight);
+cssR.domElement.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden';
+document.body.prepend(renderer.domElement);document.body.prepend(cssR.domElement);
 scene.add(new THREE.AmbientLight(0xffffff,.85));
 const dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(5,10,7);scene.add(dl);
 const pl=new THREE.PointLight(0x33e6ff,1.3,40);pl.position.set(0,1,5);scene.add(pl);
@@ -143,36 +145,24 @@ function label(txt,col){
   return c;
 }
 
-// Motos en la galaxia: foto local (motos/), luego remota, y si no, moto dibujada
-const REMOTE='https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/MOTOS/';
+// Motos en la galaxia: fotos como <img> (no requieren CORS)
+const BASE='https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/MOTOS/';
 const FILES=['ducati','kawa','r6','susuki','yamaha'];
 const motoCols=['#e11d2e','#1e6dff','#20c341','#0a7fb5','#7b3cff','#ff7a00','#19d3da'];
-const floaters=[],kinds=FILES.map(()=>[]);
-for(let i=0;i<46;i++){
-  const s=sprite(moto(motoCols[i%motoCols.length]),1,.625);
-  const k=R(6,10),flip=Math.random()<.5?-1:1;
-  s.userData={k,flip};s.scale.set(k*flip,k*.625,1);
+const floaters=[],bills=[];
+for(let i=0;i<40;i++){
+  const im=document.createElement('img');
+  im.style.cssText='height:200px;width:auto;display:block;filter:drop-shadow(0 0 14px rgba(0,229,255,.35))';
+  im.onerror=()=>{im.onerror=null;im.src=moto(motoCols[i%7]).toDataURL()};
+  im.src=BASE+FILES[i%FILES.length]+'.png';
+  const o=new THREE.CSS3DObject(im),k=R(.022,.04);
+  o.scale.set(k*(Math.random()<.5?-1:1),k,k);
   const r=R(14,75),t=R(0,6.283),h=R(-28,28);
-  s.position.set(r*Math.cos(t),h,r*Math.sin(t));
-  scene.add(s);floaters.push({s,y:h,ph:R(0,6.28),sp:R(.4,1)});
-  kinds[i%FILES.length].push(s);
+  o.position.set(r*Math.cos(t),h,r*Math.sin(t));
+  scene.add(o);bills.push(o);floaters.push({s:o,y:h,ph:R(0,6.28),sp:R(.4,1)});
 }
-FILES.forEach((n,j)=>{
-  const srcs=['motos/'+n+'.png',REMOTE+n+'.png'];
-  (function tryLoad(k){
-    if(k>=srcs.length)return;
-    const im=new Image();im.crossOrigin='anonymous';
-    im.onload=()=>{
-      const t=new THREE.Texture(im);t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;t.needsUpdate=true;
-      kinds[j].forEach(s=>{s.material.map=t;s.material.needsUpdate=true;
-        const h=s.userData.k*.9;s.scale.set(h*(im.width/im.height)*s.userData.flip,h,1)});
-    };
-    im.onerror=()=>tryLoad(k+1);
-    im.src=srcs[k];
-  })(0);
-});
 // Palabras
-const words=['Esperanza','Destino','Magia','Fuerza','Océano','Velocidad','Confianza','Amanecer','Fantasía','Precisión','Turbo','Universo','Tesoro','Libertad','Sueños','Mi flor','Mi noche','Derrape','Suerte','Eternidad','Pasión','Fiesta','Deseo','Mi paz'];
+const words=['Esperanza','Destino','Familia','Fuerte','Mi niño','Tiempo','Confia','Te quiero','Fantasía','Dino','Mi Groot','Universo','Bebé','Color Nutella','Sueños','Te extraño','Mi noche','Te quiero','Éxitos','Eternidad','Pasión','Te quiero','Deseo','Mi paz'];
 const wcol=['#8be9ff','#c9a7ff','#ffffff','#ffd98b','#7dffb0'];
 for(let i=0;i<70;i++){
   const w=words[i%words.length],s=sprite(label(w,wcol[i%5]),1,.25),k=R(3,7);
@@ -274,28 +264,26 @@ const clock=new THREE.Clock();
 function loop(){
   const t=clock.getElapsedTime();
   floaters.forEach(f=>{f.s.position.y=f.y+Math.sin(t*f.sp+f.ph)*1.2});
-  hero.position.y=-2.75+Math.sin(t*1.2)*.08;wheels.forEach(w=>w.rotation.z=-t*3);
+  hero.position.y=-2.75+Math.sin(t*1.2)*.08;wheels.forEach(w=>w.rotation.z=-t*3);bills.forEach(o=>o.quaternion.copy(camera.quaternion));
   sp.forEach(o=>{o.s.position.y=1+((t*o.v+o.o)%4.5);o.s.material.opacity=1-((t*o.v+o.o)%4.5)/4.5});
   controls.update();
-  renderer.render(scene,camera);
+  renderer.render(scene,camera);cssR.render(scene,camera);
   requestAnimationFrame(loop);
 }
 loop();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);const pt=camera.aspect<1.2;if(controls.enabled&&pt!==lastP){lastP=pt;camera.position.setLength(fitDist())}});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);cssR.setSize(innerWidth,innerHeight)});
 
 // UI
 const $=id=>document.getElementById(id);
-function fitDist(){return Math.max(16,5.5/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect))}
-let lastP=innerWidth/innerHeight<1.2;
 $('go').onclick=()=>{
   $('intro').style.opacity=0;setTimeout(()=>$('intro').style.display='none',1200);
   $('msg').style.display='flex';$('hint').style.display='block';
   setTimeout(()=>$('hint').style.opacity=0,5000);
   controls.enabled=true;
   camera.position.set(0,40,120);
-  const start=performance.now(),D=fitDist();
+  const start=performance.now();
   (function zoom(){const k=Math.min((performance.now()-start)/2500,1),e=1-Math.pow(1-k,3);
-    camera.position.set(0,40-38*e,120-(120-D)*e);if(k<1)requestAnimationFrame(zoom)})();
+    camera.position.set(0,40-38*e,120-104*e);if(k<1)requestAnimationFrame(zoom)})();
 };
 const song=$('song'),aud=$('aud');
 const ICON_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
