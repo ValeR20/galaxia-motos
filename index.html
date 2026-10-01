@@ -32,6 +32,7 @@ button{font-family:inherit;cursor:pointer}
 .w{opacity:0;transition:opacity .6s}
 .w.on{opacity:1}
 html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:86%;background:rgba(0,20,28,.92);border:1px solid var(--c);border-radius:14px;padding:10px 14px;font-size:12px;text-align:center;z-index:30;display:none}
 </style>
 </head>
 <body>
@@ -43,6 +44,7 @@ html,body{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 <button id="msg" aria-label="Abrir mensaje">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 20.5l1.5-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4"/></svg>
 </button>
+<div id="toast"></div>
 <button id="aud" aria-label="Música"></button>
 <audio id="song" loop preload="auto"><source src="musica.mp3" type="audio/mpeg"><source src="https://bcodestorague.anteroteobaldob.workers.dev/share/anteroteobaldob_gmail_com/AUDIO/enrique%20iglesias%20si%20pudiera.mp3" type="audio/mpeg"></audio>
 <div id="letter">
@@ -187,7 +189,6 @@ FILES.forEach((n,j)=>{
 });
 // Palabras
 const words=['Esperanza','Destino','Familia','Fuerte','Mi niño','Tiempo','Confia','Te quiero','Fantasía','Dino','Mi Groot','Universo','Bebé','Color Nutella','Sueños','Te extraño','Mi noche','Te quiero','Éxitos','Eternidad','Pasión','Te quiero','Deseo','Mi paz'];
-const wcol=['#8be9ff','#c9a7ff','#ffffff','#ffd98b','#7dffb0'];
 for(let i=0;i<70;i++){
   const w=words[i%words.length],s=sprite(label(w,wcol[i%5]),1,.25),k=R(3,7);
   s.scale.set(k,k*.25,1);
@@ -300,7 +301,7 @@ addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updat
 
 // UI
 const $=id=>document.getElementById(id);
-function fitDist(){return Math.max(16,5.5/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect))}
+function fitDist(){return Math.max(14,4.6/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect))}
 let lastP=innerWidth/innerHeight<1.2;
 $('go').onclick=()=>{
   $('intro').style.opacity=0;setTimeout(()=>$('intro').style.display='none',1200);
@@ -318,8 +319,20 @@ const ICON_PAUSE='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v1
 aud.innerHTML=ICON_PLAY;
 song.addEventListener('play',()=>aud.innerHTML=ICON_PAUSE);
 song.addEventListener('pause',()=>aud.innerHTML=ICON_PLAY);
-aud.onclick=()=>song.paused?song.play().catch(()=>{}):song.pause();
-$('go').addEventListener('click',()=>{aud.style.display='flex';song.play().catch(()=>{});});
+let userPaused=false;
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',6000)}
+function startMusic(){
+  song.muted=false;song.volume=1;
+  const pr=song.play();
+  if(pr&&pr.catch)pr.catch(()=>{});
+}
+aud.onclick=()=>{if(song.paused){userPaused=false;startMusic()}else{userPaused=true;song.pause()}};
+const srcs=song.querySelectorAll('source');
+srcs[srcs.length-1].addEventListener('error',()=>toast('No se pudo cargar la música. Prueba abrir el link en Safari.'));
+// si el navegador bloqueó el audio, reintenta en el siguiente toque
+['touchend','pointerup','click'].forEach(ev=>document.addEventListener(ev,()=>{if(started&&song.paused&&!userPaused)startMusic()},{passive:true}));
+let started=false;
+$('go').addEventListener('click',()=>{started=true;aud.style.display='flex';startMusic();});
 document.querySelectorAll('.paper p').forEach(p=>{
   p.innerHTML=p.innerHTML.split(/<br\s*\/?>/i).map(l=>l.trim().split(/\s+/).map(w=>'<span class="w">'+w+'</span>').join(' ')).join('<br>');
 });
